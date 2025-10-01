@@ -1,0 +1,68 @@
+VENV        	:= .venv
+SRC_DIR     	:= src
+APP_MODULE  	:= api.main:app
+TEST_DIR    	:= tests
+
+REQ_IN      	:= requirements.in
+REQ_TXT     	:= requirements.txt
+REQ_DEV_IN  	:= requirements-dev.in
+REQ_DEV_TXT 	:= requirements-dev.txt
+
+PYTHON      	:= $(VENV)/bin/python
+PIP         	:= $(PYTHON) -m pip
+PIP_COMPILE 	:= $(VENV)/bin/pip-compile
+PIP_SYNC    	:= $(VENV)/bin/pip-sync
+
+UVICORN     	:= $(VENV)/bin/uvicorn
+PYTEST      	:= $(VENV)/bin/pytest
+BLACK       	:= $(VENV)/bin/black
+MYPY        	:= $(VENV)/bin/mypy
+RUFF        	:= $(VENV)/bin/ruff
+
+COMPILE_ARGS 	:=  --generate-hashes --strip-extras --no-emit-index-url --no-emit-trusted-host
+
+-include ../../.env
+export $(shell sed 's/=.*//' ../../.env)
+
+.PHONY: help compile upgrade install lint test run clean
+
+help:
+	@echo "  compile   - Compile requirements.in and requirements-dev.in into pinned txt files"
+	@echo "  upgrade   - Upgrade all dependencies and recompile requirements"
+	@echo "  install   - Sync project dependencies"
+	@echo "  lint      - Run black and mypy on the source code"
+	@echo "  test      - Run pytest on the tests"
+	@echo "  run       - Run the FastAPI app with uvicorn in reload mode"
+	@echo "  clean     - Remove virtualenv and cache files"
+
+$(VENV)/bin/activate:
+	python3 -m venv $(VENV)
+	$(PIP) install --upgrade pip pip-tools
+
+compile: | $(VENV)/bin/activate
+	$(PIP_COMPILE) $(COMPILE_ARGS) --output-file=$(REQ_TXT) $(REQ_IN)
+	$(PIP_COMPILE) $(COMPILE_ARGS) --output-file=$(REQ_DEV_TXT) $(REQ_DEV_IN)
+
+upgrade: | $(VENV)/bin/activate
+	$(PIP_COMPILE) -U $(COMPILE_ARGS) --output-file=$(REQ_TXT) $(REQ_IN)
+	$(PIP_COMPILE) -U $(COMPILE_ARGS) --output-file=$(REQ_DEV_TXT) $(REQ_DEV_IN)
+
+install: | $(VENV)/bin/activate
+	$(PIP_SYNC) $(REQ_TXT) $(REQ_DEV_TXT)
+	$(PIP) install -e .
+
+lint: | $(VENV)/bin/activate
+	$(RUFF) check $(SRC_DIR) $(TEST_DIR)
+	$(BLACK) --check --diff $(SRC_DIR)
+	$(MYPY) $(SRC_DIR)
+
+test: install
+	$(PYTEST) $(TEST_DIR) -q
+
+run: install
+	$(UVICORN) $(APP_MODULE) --app-dir $(SRC_DIR) --host 0.0.0.0 --port 3001 --reload
+
+clean:
+	rm -rf $(VENV) .mypy_cache .pytest_cache
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name ".pytest_cache" -exec rm -rf {} +

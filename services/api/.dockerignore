@@ -1,0 +1,28 @@
+# Ignore git & VCS
+.git
+.gitignore
+.dockerignore
+
+# Python cache & virtualenv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+.env
+*.log
+
+# pytest / mypy / coverage caches
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Mac / OS generated
+.DS_Store
+*.swp

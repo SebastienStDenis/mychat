@@ -1,0 +1,18 @@
+# Ignore git & VCS
+.git
+.gitignore
+.dockerignore
+
+# Node / Next.js
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.next/
+out/
+coverage/
+
+# Mac / OS generated
+.DS_Store
+*.swp

@@ -1,0 +1,9 @@
+POST http://localhost:3001/chat
+Content-Type: application/json
+
+{
+    "messages": [
+        { "role": "system", "content_type": "input_text", "content_text": "You are a helpful assistant." },
+        { "role": "user", "content_type": "input_text", "content_text": "What day is it and how many R's in strawberry?" }
+    ]
+}
