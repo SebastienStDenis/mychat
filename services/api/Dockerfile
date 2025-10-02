@@ -1,9 +1,8 @@
 FROM python:3.12-slim@sha256:abc799c7ee22b0d66f46c367643088a35e048bbabd81212d73c2323aed38c64f AS base
-LABEL org.opencontainers.image.authors="sebastien.stdenis@proton.me"
+WORKDIR /app
 
 RUN adduser --disabled-password --gecos "" appuser
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
-WORKDIR /app
 RUN pip install --no-cache-dir --upgrade pip
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl \
@@ -43,7 +42,10 @@ RUN python -m build --wheel --outdir /dist
 
 
 FROM base AS runner
+LABEL org.opencontainers.image.authors="sebastien.stdenis@proton.me"
+LABEL org.opencontainers.image.source="https://github.com/SebastienStDenis/mychat"
 WORKDIR /app
+
 COPY --from=deps /usr/local /usr/local
 COPY --from=builder /dist/*.whl /tmp/
 RUN pip install --no-cache-dir /tmp/*.whl && rm -f /tmp/*.whl

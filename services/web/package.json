@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npm ci --no-audit --no-fund --prefer-offline",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",

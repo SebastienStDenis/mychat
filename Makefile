@@ -1,6 +1,15 @@
 COMPOSE = docker compose -f ./infra/dev/docker-compose.yml
 
-.PHONY: up down build logs ps restart
+.PHONY: help up down build logs ps restart
+
+help:
+	@echo "Makefile commands:"
+	@echo "  up       - Start the development environment"
+	@echo "  down     - Stop the development environment"
+	@echo "  build    - Build the Docker images"
+	@echo "  logs     - Follow the logs of all services"
+	@echo "  ps       - List the running services"
+	@echo "  restart  - Restart the development environment"
 
 up:
 	$(COMPOSE) up -d

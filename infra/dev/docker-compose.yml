@@ -33,5 +33,10 @@ services:
       target: dev
     restart: always
     volumes:
-      - ${SERVICES_ROOT}/web:/app # mount project source
-      - /app/node_modules # volume for container’s own deps, listed AFTER the source mount to avoid clobbering from source mount in previous line
+      - ${SERVICES_ROOT}/web:/app            # mount project source
+      - node_modules_cache:/app/node_modules # volume for container-only deps; kept separate from host’s. Placed AFTER source mount so it doesn’t get overwritten. Npm ci is run in Dockerfile to populate it.
+      - npm_cache:/home/node/.npm            # volume for npm’s cache directory for faster installs
+
+volumes:
+  node_modules_cache:
+  npm_cache:
