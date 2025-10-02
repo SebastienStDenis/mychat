@@ -1,6 +1,8 @@
 FROM node:24-alpine@sha256:3e843c608bb5232f39ecb2b25e41214b958b0795914707374c8acc28487dea17 AS base
 LABEL org.opencontainers.image.authors="sebastien.stdenis@proton.me"
 
+RUN apk add --no-cache curl
+
 FROM base AS deps
 WORKDIR /app
 COPY package*.json ./
@@ -36,6 +38,7 @@ RUN npm run build
 FROM base AS runner
 
 WORKDIR /app
+# Note: HOSTNAME gets overridden by Fargate, set it in the ECS task definition as well (https://github.com/vercel/next.js/issues/58657)
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
 
 COPY --from=builder /app/public ./public
