@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter
 from pydantic import BaseModel
-from openai import NotGiven, OpenAI
+from openai import OpenAI
 from openai.types.responses import ResponseInputItemParam
 from typing import cast
 import os
@@ -21,7 +21,12 @@ class ChatRequest(BaseModel):
 
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", NotGiven())
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5-nano")
+
+if (not OPENAI_API_KEY) or (not OPENAI_MODEL):
+    raise ValueError(
+        "OPENAI_API_KEY and OPENAI_MODEL must be set in environment variables"
+    )
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 

@@ -1,27 +1,39 @@
+# syntax=docker/dockerfile:1.6
 FROM python:3.12-slim@sha256:abc799c7ee22b0d66f46c367643088a35e048bbabd81212d73c2323aed38c64f AS base
 WORKDIR /app
 
 RUN adduser --disabled-password --gecos "" appuser
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
-RUN pip install --no-cache-dir --upgrade pip
-RUN apt-get update \
+RUN pip install --no-cache-dir --upgrade pip \
+ && apt-get update \
  && apt-get install -y --no-install-recommends curl \
  && rm -rf /var/lib/apt/lists/*
 
+
+FROM base AS deps
+WORKDIR /app
+COPY requirements.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install --require-hashes -r requirements.txt
+
 # ------ DEVELOPMENT ------
 
-FROM base AS dev-deps
+FROM deps AS dev-deps
+WORKDIR /app
+COPY requirements-dev.txt ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install --require-hashes -r requirements-dev.txt
+
+
+FROM base AS dev-runner
 WORKDIR /app
 
-COPY requirements.txt requirements-dev.txt pyproject.toml ./
-RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
-
+COPY --from=dev-deps /usr/local /usr/local
+COPY pyproject.toml ./
  # Copy source code as a fallback in case it isn't bind-mounted (bind mount takes precedence since it's applied after image creation)
 COPY --chown=appuser:appuser src/ ./src
-RUN pip install --no-cache-dir -e .
-
-
-FROM dev-deps AS dev-runner
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install -e .
 
 USER appuser
 EXPOSE 3001
@@ -29,7 +41,7 @@ CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "3001", "--reload
 
 # ------ TESTING ------
 
-FROM dev-deps AS test-runner
+FROM dev-runner AS test-runner
 WORKDIR /app
 
 COPY tests/ ./tests
@@ -37,12 +49,6 @@ COPY tests/ ./tests
 CMD ["pytest", "tests", "-q"]
 
 # ------ PRODUCTION ------
-
-FROM base AS deps
-WORKDIR /app
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
 
 FROM base AS builder
 WORKDIR /app

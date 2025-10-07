@@ -15,7 +15,7 @@ services:
 
   # standard for python is to mount only the source code rather than the whole project
   api:
-    build: 
+    build:
       context: ${SERVICES_ROOT}/api
       target: dev-runner
     restart: always
