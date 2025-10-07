@@ -17,13 +17,27 @@ services:
   api:
     build: 
       context: ${SERVICES_ROOT}/api
-      target: dev
+      target: dev-runner
     restart: always
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL}
     volumes:
       - ${SERVICES_ROOT}/api/src:/app/src
+
+  api-test:
+    build:
+      context: ${SERVICES_ROOT}/api
+      target: test-runner
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+    volumes:
+      - ${SERVICES_ROOT}/api/src:/app/src
+      - ${SERVICES_ROOT}/api/tests:/app/tests
+      - api-volume:/app/data
+    depends_on:
+      - api
 
 
   # standard for next.js is to mount the whole project and ignore host's node_modules by mounting an anonymous volume
@@ -40,3 +54,4 @@ services:
 volumes:
   node_modules_cache:
   npm_cache:
+  api-volume:

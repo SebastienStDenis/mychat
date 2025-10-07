@@ -24,6 +24,7 @@ CMD ["npm", "run", "dev"]
 FROM base AS deps
 WORKDIR /app
 COPY package*.json ./
+# mount npm cache for faster installs
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --no-audit --no-fund
 

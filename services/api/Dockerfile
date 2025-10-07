@@ -10,20 +10,31 @@ RUN apt-get update \
 
 # ------ DEVELOPMENT ------
 
-FROM base AS dev
+FROM base AS dev-deps
 WORKDIR /app
 
 COPY requirements.txt requirements-dev.txt pyproject.toml ./
-RUN pip install --no-cache-dir --upgrade pip \
- && pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
 
- # Copy source code as a fallback in case it isn't bind-mounted
+ # Copy source code as a fallback in case it isn't bind-mounted (bind mount takes precedence since it's applied after image creation)
 COPY --chown=appuser:appuser src/ ./src
 RUN pip install --no-cache-dir -e .
+
+
+FROM dev-deps AS dev-runner
 
 USER appuser
 EXPOSE 3001
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "3001", "--reload"]
+
+# ------ TESTING ------
+
+FROM dev-deps AS test-runner
+WORKDIR /app
+
+COPY tests/ ./tests
+
+CMD ["pytest", "tests", "-q"]
 
 # ------ PRODUCTION ------
 
