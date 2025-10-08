@@ -22,7 +22,7 @@ permissions:
 
 env:
   AWS_REGION: "us-east-2"
-  ECR_REPOSITORY: "mychat-api"
+  ECR_REPOSITORY: "mychat/api"
   OPENAI_API_KEY: "placeholder"
   OPENAI_MODEL: "gpt-5-nano"
   SERVICES_ROOT: "../../services"
