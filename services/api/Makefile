@@ -60,10 +60,6 @@ install: | $(VENV)/bin/activate
 type: | $(VENV)/bin/activate
 	$(MYPY) $(SRC_DIR)
 
-lint: | $(VENV)/bin/activate
-	$(RUFF) check --fix $(SRC_DIR) $(TEST_DIR)
-	$(BLACK) $(SRC_DIR)
-
 test: | $(VENV)/bin/activate
 	@$(LOAD_ENV); \
 	$(PYTEST) $(TEST_DIR) -q
