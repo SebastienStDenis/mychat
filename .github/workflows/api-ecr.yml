@@ -39,14 +39,14 @@ jobs:
         run: |
           make install
 
-      - name: Type
-        run: |
-          make type
-
       - name: Lint
         uses: pre-commit/action@v3.0.1
         with:
           extra_args: --all-files
+
+      - name: Type
+        run: |
+          make type
 
       - name: Unit Tests
         run: |

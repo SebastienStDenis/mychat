@@ -8,16 +8,24 @@ repos:
       - id: check-added-large-files
       - id: check-merge-conflict
 
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.0
+    hooks:
+      - id: ruff
+        args: ["--fix", "."]
+
+
+  - repo: https://github.com/psf/black
+    rev: 25.9.0
+    hooks:
+      - id: black
+
+
   - repo: local
     hooks:
-      - id: api-lint
-        name: Lint API (Python)
+      - id: lint-web
+        name: Lint web
+        entry: bash -c "cd services/web && npm run lint"
         language: system
         pass_filenames: false
-        entry: bash -lc 'make -C services/api lint'
-
-      - id: web-lint
-        name: Lint Web (Next.js)
-        language: system
-        pass_filenames: false
-        entry: bash -lc 'make -C services/web lint'
