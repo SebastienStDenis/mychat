@@ -1,11 +1,12 @@
 COMPOSE = DOCKER_BUILDKIT=1 docker compose -f ./infra/dev/docker-compose.yml
 
-.PHONY: help init install type test clean dc-test dc-up dc-logs dc-stop dc-down dc-build
+.PHONY: help init install lint type test clean dc-test dc-up dc-logs dc-stop dc-down dc-build
 
 help:
 	@echo "Makefile commands:"
 	@echo "  init     	- Initialize the development environment (env, hooks)"
 	@echo "  install  	- Install dependencies for all services"
+	@echo "  lint     	- Run linters on all services"
 	@echo "  type	 	- Run type checks on all services"
 	@echo "  test     	- Run unit tests locally"
 	@echo "  clean    	- Clean up the development environment"
@@ -31,6 +32,9 @@ init:
 install:
 	$(MAKE) -C services/api install
 	cd services/web && npm run predev
+
+lint:
+	pre-commit run --all-files
 
 type:
 	$(MAKE) -C services/api type
