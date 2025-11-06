@@ -35,7 +35,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install poetry
+        run: pipx install "poetry==2.2.*"
+
+      - name: Install project
         run: |
           make install
 
@@ -54,7 +61,7 @@ jobs:
 
       - name: Integration Tests
         run: |
-          make integration-test
+          make dc-test
 
       - name: Configure AWS credentials (OIDC)
         if: github.event_name != 'pull_request'
