@@ -5,35 +5,40 @@ WORKDIR /app
 RUN adduser --disabled-password --gecos "" appuser
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir poetry==2.2.* \
  && apt-get update \
  && apt-get install -y --no-install-recommends curl \
  && rm -rf /var/lib/apt/lists/*
 
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=false \
+    POETRY_VIRTUALENVS_CREATE=false
+
 
 FROM base AS deps
 WORKDIR /app
-COPY requirements.txt ./
-RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install --require-hashes -r requirements.txt
+COPY pyproject.toml poetry.lock* ./
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+  poetry install --only main --no-root
 
 # ------ DEVELOPMENT ------
 
 FROM deps AS dev-deps
 WORKDIR /app
-COPY requirements-dev.txt ./
-RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install --require-hashes -r requirements-dev.txt
+COPY pyproject.toml poetry.lock* ./
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+  poetry install --no-root
 
 
 FROM base AS dev-runner
 WORKDIR /app
 
 COPY --from=dev-deps /usr/local /usr/local
-COPY pyproject.toml ./
+COPY pyproject.toml poetry.lock* ./
  # Copy source code as a fallback in case it isn't bind-mounted (bind mount takes precedence since it's applied after image creation)
 COPY --chown=appuser:appuser src/ ./src
-RUN --mount=type=cache,target=/root/.cache/pip \
-  pip install -e .
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+  poetry install --only-root
 
 USER appuser
 EXPOSE 3001

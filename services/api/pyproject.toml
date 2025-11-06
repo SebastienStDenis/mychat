@@ -1,18 +1,26 @@
-[build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "mychat-api"
 version = "0.1.0"
-requires-python = ">=3.12"
+description = "MyChat API service"
+authors = ["Sébastien St-Denis"]
+packages = [{include = "api", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "~0.112"
+uvicorn = "~0.30"
+pydantic = "~2.11"
+openai = "~1.107"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "~1.8.0"
+pytest = "~7.4.0"
+types-requests = "~2.32.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 strict = true
 warn_unused_ignores = true
-
-[tool.setuptools]
-package-dir = {"" = "src"}
-
-[tool.setuptools.packages.find]
-where = ["src"]
