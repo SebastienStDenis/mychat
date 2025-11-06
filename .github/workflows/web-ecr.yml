@@ -102,7 +102,7 @@ jobs:
           context: services/web
           file: services/web/Dockerfile
           target: runner
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false # ECR disabled for now ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }} # these are the LABEL directives in the Dockerfile
           cache-from: type=gha
