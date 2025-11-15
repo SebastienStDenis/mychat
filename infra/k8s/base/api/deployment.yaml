@@ -23,3 +23,12 @@ spec:
           image: ghcr.io/sebastienstdenis/mychat/api:0.1.0@sha256:f33158f7f6348a6ca40a7187f62a691a47ccf707c6bfb0d1d2acb621f0859745
           ports:
             - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: api-configmap
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: api-secrets
+                  key: OPENAI_API_KEY

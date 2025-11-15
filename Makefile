@@ -71,3 +71,17 @@ dc-down:
 
 dc-build:
 	$(COMPOSE) build
+
+k-init:
+	kind create cluster --name mychat --config infra/k8s/kind-config.yaml
+
+k-up:
+	kubectl kustomize "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v2.2.1" | kubectl apply -f -
+	helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway --set nginx.service.type=NodePort --set-json 'nginx.service.nodePorts=[{"port":31437,"listenerPort":80}]'
+	kubectl apply -k infra/k8s/overlays/local
+
+k-down:
+	kubectl delete -k infra/k8s/overlays/local
+
+k-clean:
+	kind delete cluster --name mychat
