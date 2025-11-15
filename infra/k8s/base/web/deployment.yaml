@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  namespace: mychat
+  labels:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/instance: mychat
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: web
+      app.kubernetes.io/instance: mychat
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: web
+        app.kubernetes.io/instance: mychat
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/sebastienstdenis/mychat/web:0.1.0@sha256:47f57617c22dad50fa71f8256ac1106e00bcba11e26e97829f16fe6f5bd1d615
+          ports:
+            - containerPort: 3000
