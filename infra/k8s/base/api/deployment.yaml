@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: api
     app.kubernetes.io/instance: mychat
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: api
@@ -20,9 +20,17 @@ spec:
     spec:
       containers:
         - name: api
-          image: ghcr.io/sebastienstdenis/mychat/api:0.1.0@sha256:f33158f7f6348a6ca40a7187f62a691a47ccf707c6bfb0d1d2acb621f0859745
+          image: ghcr.io/sebastienstdenis/mychat/api
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3001
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
           envFrom:
             - configMapRef:
                 name: api-configmap

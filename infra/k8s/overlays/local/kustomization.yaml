@@ -13,3 +13,12 @@ secretGenerator:
 
 generatorOptions:
   disableNameSuffixHash: true
+
+images:
+  - name: ghcr.io/sebastienstdenis/mychat/api
+    newName: api
+    newTag: tilt
+
+  - name: ghcr.io/sebastienstdenis/mychat/web
+    newName: web
+    newTag: tilt

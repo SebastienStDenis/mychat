@@ -6,6 +6,8 @@ metadata:
   labels:
     app.kubernetes.io/name: web
     app.kubernetes.io/instance: mychat
+  annotations:
+    cloud.google.com/backend-security-policy: "mychat-allow-personal"
 spec:
   type: ClusterIP
   selector:

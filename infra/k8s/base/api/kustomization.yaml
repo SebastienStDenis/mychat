@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: mychat
 
 resources:
-  - namespace.yaml
-  - api
-  - gateway
-  - web
+  - configmap.yaml
+  - deployment.yaml
+  - clusterip.yaml

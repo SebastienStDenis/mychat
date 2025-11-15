@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: web
     app.kubernetes.io/instance: mychat
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: web
@@ -20,6 +20,14 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/sebastienstdenis/mychat/web:0.1.0@sha256:47f57617c22dad50fa71f8256ac1106e00bcba11e26e97829f16fe6f5bd1d615
+          image: ghcr.io/sebastienstdenis/mychat/web
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "256Mi"
