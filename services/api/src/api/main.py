@@ -31,6 +31,16 @@ if (not OPENAI_API_KEY) or (not OPENAI_MODEL):
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
+@app.get("/")
+def root_health_check() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+@app.get("/healthz")
+def health_check() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @api_router.post("/chat", response_model=ChatMessage)
 async def chat(req: ChatRequest) -> ChatMessage:
     inputs: list[ResponseInputItemParam] = [
@@ -54,11 +64,6 @@ async def chat(req: ChatRequest) -> ChatMessage:
         content_type="output_text",
         content_text=response.output_text or "",
     )
-
-
-@app.get("/healthz")
-def health_check() -> dict[str, str]:
-    return {"status": "ok"}
 
 
 app.include_router(api_router)

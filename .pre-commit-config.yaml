@@ -3,9 +3,11 @@ repos:
     rev: v6.0.0
     hooks:
       - id: check-yaml
+        exclude: (^infra/platform/.*)
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-added-large-files
+        exclude: (^infra/platform/.*)
       - id: check-merge-conflict
 
 

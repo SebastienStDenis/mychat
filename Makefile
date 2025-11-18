@@ -1,6 +1,6 @@
 COMPOSE = DOCKER_BUILDKIT=1 docker compose -f ./infra/dev/docker-compose.yml
 
-.PHONY: help init install lint type test clean dc-test dc-up dc-logs dc-stop dc-down dc-build cluster-up cluster-down tilt-up tilt-down
+.PHONY: help init install lint type test clean dc-test dc-up dc-logs dc-stop dc-down dc-build kind-up kind-down tilt-up tilt-down
 
 help:
 	@echo "Makefile commands:"
@@ -16,8 +16,8 @@ help:
 	@echo "  dc-stop		- Stop services without removing containers"
 	@echo "  dc-down		- Stop and remove containers, networks, volumes"
 	@echo "  dc-build		- Build all Docker images"
-	@echo "  cluster-up		- Create a local Kubernetes cluster with kind and deploy nginx gateway fabric"
-	@echo "  cluster-down	- Delete the local Kubernetes cluster"
+	@echo "  kind-up		- Create a local Kubernetes cluster with kind and deploy nginx gateway fabric"
+	@echo "  kind-down		- Delete the local Kubernetes cluster"
 	@echo "  tilt-up		- Deploy local Kubernetes resources with Tilt"
 	@echo "  tilt-down		- Remove local Kubernetes resources with Tilt"
 
@@ -76,22 +76,44 @@ dc-down:
 dc-build:
 	$(COMPOSE) build
 
-.PHONY:
 
-cluster-up:
+kind-up:
 	-kind create cluster --name mychat --config infra/k8s/kind/kind-config.yaml
-	kubectl kustomize "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v2.2.1" | kubectl apply -f -
-	helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
-	  --create-namespace -n nginx-gateway \
-	  --version 2.2.1 \
-	  --set nginx.service.type=NodePort \
-	  --set-json 'nginx.service.nodePorts=[{"port":31437,"listenerPort":80}]'
+	kubectl config set-context --current --namespace=mychat
 
-cluster-down:
+
+kind-deps:
+	kubectl apply -k infra/platform/gateway-api
+	helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
+		--namespace nginx-gateway \
+		--create-namespace \
+		--version 2.2.1 \
+		-f infra/platform/kind/ngf-values.yaml
+
+
+kind-init: -kind-up kind-deps
+
+
+kind-down:
 	kind delete cluster --name mychat
+
 
 tilt-up:
 	cd infra/k8s/kind && tilt up
 
+
 tilt-down:
 	cd infra/k8s/kind && tilt down
+
+
+gke-deps:
+	gcloud container clusters update mychat --location=us-central1 --gateway-api=standard
+	kubectl apply -k infra/platform/gateway-api
+	helm upgrade --install external-secrets oci://ghcr.io/external-secrets/charts/external-secrets \
+		--namespace external-secrets \
+		--create-namespace \
+		--version 1.0.0 \
+		--set installCRDs=true
+
+gke-apply:
+	kubectl apply -k infra/k8s/overlays/gke
