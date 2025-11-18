@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: mychat
+
+resources:
+  - ../../base
+
+secretGenerator:
+  - name: api-secrets
+    envs:
+      - .env
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+images:
+  - name: ghcr.io/sebastienstdenis/mychat/api
+    newName: api
+    newTag: tilt
+
+  - name: ghcr.io/sebastienstdenis/mychat/web
+    newName: web
+    newTag: tilt

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-clusterip
+  namespace: mychat
+  labels:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/instance: mychat
+  annotations:
+    cloud.google.com/backend-security-policy: "mychat-allow-personal"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: web
+    app.kubernetes.io/instance: mychat
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
