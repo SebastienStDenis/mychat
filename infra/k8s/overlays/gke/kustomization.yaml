@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - api
+
+images:
+  - name: ghcr.io/sebastienstdenis/mychat/api
+    newTag: 0.2.0
+
+  - name: ghcr.io/sebastienstdenis/mychat/web
+    newTag: 0.1.0
+
+patches:
+  - path: gateway/gateway-patch.yaml
+    target:
+      kind: Gateway
+      name: gateway

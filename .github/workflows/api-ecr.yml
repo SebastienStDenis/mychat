@@ -25,7 +25,6 @@ env:
   ECR_REPOSITORY: "mychat/api"
   OPENAI_API_KEY: "placeholder"
   OPENAI_MODEL: "gpt-5-nano"
-  SERVICES_ROOT: "../../services"
 
 jobs:
   build-and-push:
